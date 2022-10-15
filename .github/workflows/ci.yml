@@ -1,0 +1,50 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: set up python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: install poetry
+        uses: snok/install-poetry@v1.0.0
+        with:
+          version: 1.1.14
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install
+
+      - name: black fix
+        if: github.event_name != 'pull_request'
+        run: poetry run black .
+
+      - name: isort fix
+        if: github.event_name != 'pull_request'
+        run: poetry run isort
+
+      - name: auto commit
+        if: github.event_name != 'pull_request'
+        uses: stefanzweifel/git-auto-commit-action@v4.14.1
+        with:
+          commit_message: format code
+
+      - name: flake8
+        id: flake8
+        run: poetry run flake8
