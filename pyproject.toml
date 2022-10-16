@@ -19,6 +19,7 @@ black = "^22.10.0"
 isort = "^5.10.1"
 flake8 = "^5.0.4"
 aerich = "^0.7.1"
+autoflake = "^1.7.6"
 
 [tool.poetry.scripts]
 bot = "bot.__main__:main"
