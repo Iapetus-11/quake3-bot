@@ -1,26 +1,36 @@
 [tool.poetry]
-name = "discord-py-template"
+name = "quake3-bot"
 version = "0.0.0"
-description = "A Discord.py bot template"
+description = "A Quake 3 Discord bot"
 authors = ["Milo Weinberg <iapetus011@gmail.com>"]
 license = "MIT"
+packages = [{ include = "bot" }]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 "discord.py" = "^2.0.0"
-pydantic = "^1.9.2"
-python-dotenv = "^0.20.0"
-aiosqlite = "^0.17.0"
-arrow = "^1.2.2"
+pydantic = "^1.10.2"
+python-dotenv = "^0.21.0"
+arrow = "^1.2.3"
+tortoise-orm = {extras = ["asyncpg"], version = "^0.19.2"}
 
-[tool.poetry.dev-dependencies]
-black = "^22.6.0"
+[tool.poetry.group.dev.dependencies]
+black = "^22.10.0"
 isort = "^5.10.1"
 flake8 = "^5.0.4"
+aerich = "^0.7.1"
 
+[tool.poetry.scripts]
+bot = "bot.__main__:main"
+
+[tool.aerich]
+tortoise_orm = "bot.config.TORTOISE_ORM"
+location = "./migrations"
+src_folder = "./."
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
 [tool.black]
 line-length = 100
 target-version = ['py310']
@@ -30,4 +40,6 @@ include = '\.pyi?$'
 profile = "black"
 line_length = 100
 known_bot = ["bot"]
-sections = ["FUTURE", "STDLIB", "THIRDPARTY", "BOT", "FIRSTPARTY", "LOCALFOLDER"]
+known_bot_models = ["bot/models"]
+known_bot_utils = ["bot/utils"]
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "BOT", "BOT_MODELS", "BOT_UTILS", "FIRSTPARTY", "LOCALFOLDER"]

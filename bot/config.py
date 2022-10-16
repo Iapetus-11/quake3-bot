@@ -7,9 +7,7 @@ from pydantic import BaseModel, Field
 class BotConfig(BaseModel):
     DISCORD_BOT_TOKEN: str
 
-    DATABASE_NAME: str = Field(default="bot.db")
-
-    COMMAND_PREFIX: str = Field(default="!")
+    DATABASE_URI: str = Field(default="quake3bot.db")
 
 
 def load_config() -> BotConfig:
@@ -47,6 +45,21 @@ def generate_example_env():
 
     with open("example.env", "w+") as example_env:
         example_env.writelines(lines[1:])
+
+
+CONFIG = load_config()
+
+TORTOISE_ORM = {
+    "connections": {
+        "default": CONFIG.DATABASE_URI
+    },
+    "apps": {
+        "models": {
+            "models": ["aerich.models", "bot.models"],
+            "default_connection": "default",
+        }
+    }
+}
 
 
 if __name__ == "__main__":
