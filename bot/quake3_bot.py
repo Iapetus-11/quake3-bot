@@ -2,9 +2,9 @@ import aiohttp
 import arrow
 import discord
 from discord.ext import commands
-from bot.utils.setup import setup_logging
 
 from bot.config import CONFIG
+from bot.utils.setup import setup_logging
 
 
 class Quake3Bot(commands.AutoShardedBot):

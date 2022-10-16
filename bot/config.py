@@ -50,15 +50,13 @@ def generate_example_env():
 CONFIG = load_config()
 
 TORTOISE_ORM = {
-    "connections": {
-        "default": CONFIG.DATABASE_URI
-    },
+    "connections": {"default": CONFIG.DATABASE_URI},
     "apps": {
         "models": {
             "models": ["aerich.models", "bot.models"],
             "default_connection": "default",
         }
-    }
+    },
 }
 
 

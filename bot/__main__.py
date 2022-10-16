@@ -2,13 +2,13 @@ import asyncio
 
 from tortoise import Tortoise
 
-from bot.quake3_bot import Quake3Bot
 from bot.config import CONFIG
+from bot.quake3_bot import Quake3Bot
 
 
 async def async_main():
     await Tortoise.init(
-        db_url=f'sqlite://{CONFIG.DATABASE_URI}',
+        db_url=f"sqlite://{CONFIG.DATABASE_URI}",
         modules={
             "models": ["bot.models"],
         },
