@@ -34,7 +34,7 @@ jobs:
         run: poetry install --all-extras
 
       - name: auto-flake
-        run: poetry run autoflake --remove-all-unused-imports --expand-star-imports --ignore-init-module-imports --in-place --recursive aioq3rcon/ examples/
+        run: poetry run autoflake --remove-all-unused-imports --expand-star-imports --ignore-init-module-imports --in-place --recursive bot/
 
       - name: black fix
         run: poetry run black .
