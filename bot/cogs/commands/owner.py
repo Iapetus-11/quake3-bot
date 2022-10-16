@@ -1,7 +1,7 @@
 from discord.ext import commands
 
-from bot.utils.code import execute_code, format_exception
 from bot.quake3_bot import Quake3Bot
+from bot.utils.code import execute_code, format_exception
 
 
 class OwnerCommands(commands.Cog):
@@ -17,9 +17,7 @@ class OwnerCommands(commands.Cog):
             stuff = stuff[2:]
 
         try:
-            result = await execute_code(
-                stuff, {"bot": self.bot, "http": self.bot.aiohttp_client}
-            )
+            result = await execute_code(stuff, {"bot": self.bot, "http": self.bot.aiohttp_client})
 
             result_str = f"{result}".replace("```", "｀｀｀")
             await ctx.reply(f"```\n{result_str}```")
