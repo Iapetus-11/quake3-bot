@@ -93,7 +93,9 @@ class Quake3ServerCommands(commands.Cog):
         await inter.response.defer()
 
         server = await Quake3Server.get(id=server)
-        configuration: UserQuake3ServerConfiguration = await server.configurations.filter(discord_user__id=inter.user.id).first()
+        configuration: UserQuake3ServerConfiguration = await server.configurations.filter(
+            discord_user__id=inter.user.id
+        ).first()
 
         print(configuration)
 
