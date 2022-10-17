@@ -1,11 +1,8 @@
 import sys
 
 import arrow
-import tortoise.exceptions
 from discord.ext import commands
-import discord
 
-from bot.models import DiscordGuild
 from bot.quake3_bot import Quake3Bot
 from bot.utils.code import format_exception
 
@@ -14,19 +11,21 @@ class Events(commands.Cog):
     def __init__(self, bot: Quake3Bot):
         self.bot = bot
 
-    async def on_event_error(self, event, *args, **kwargs):  # logs errors in events, such as on_message
+    async def on_event_error(
+        self, event, *args, **kwargs
+    ):  # logs errors in events, such as on_message
         exception = sys.exc_info()[1]
         traceback = format_exception(exception).replace("```", "｀｀｀")
 
         event_call_repr = f"{event}({',  '.join(list(map(repr, args)) + [f'{k}={repr(v)}' for k, v in kwargs.items()])})"
-        self.bot.logger.error(f"An exception occurred in this event call:\n{event_call_repr}", exc_info=True)
+        self.bot.logger.error(
+            f"An exception occurred in this event call:\n{event_call_repr}", exc_info=True
+        )
 
         await self.bot.wait_until_ready()
 
         error_channel = await self.bot.get_error_channel()
-        await error_channel.send(
-            f"```py\n{event_call_repr[:100]}``````py\n{traceback[:1880]}```"
-        )
+        await error_channel.send(f"```py\n{event_call_repr[:100]}``````py\n{traceback[:1880]}```")
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: Exception):

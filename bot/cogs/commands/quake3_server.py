@@ -1,11 +1,10 @@
 import socket
 
-import discord
-from discord.ext import commands
-from discord import app_commands as slash_commands
-import validators
-
 import aioq3rcon
+import discord
+import validators
+from discord import app_commands as slash_commands
+from discord.ext import commands
 
 from bot.models import DiscordGuild, Quake3Server
 from bot.models.discord_user import DiscordUser
@@ -23,7 +22,9 @@ class Quake3ServerCommands(commands.Cog):
     def __init__(self, bot: Quake3Bot):
         self.bot = bot
 
-    @slash_commands.command(name="addserver", description="Add a Quake 3 server to the bot for this Discord server")
+    @slash_commands.command(
+        name="addserver", description="Add a Quake 3 server to the bot for this Discord server"
+    )
     @commands.has_permissions(manage_guild=True)
     async def add_server(self, inter: discord.Interaction, address: str, password: str):
         await inter.response.defer(ephemeral=True)
@@ -48,7 +49,9 @@ class Quake3ServerCommands(commands.Cog):
             return
 
         try:
-            await aioq3rcon.Client(host=address_without_port, port=port, password=password).connect(verify=True)
+            await aioq3rcon.Client(host=address_without_port, port=port, password=password).connect(
+                verify=True
+            )
         except (ConnectionError, socket.gaierror):
             await inter.edit_original_response(content="Server could not be connected to.")
             return
@@ -58,11 +61,17 @@ class Quake3ServerCommands(commands.Cog):
 
         db_guild, _ = await DiscordGuild.get_or_create(id=inter.guild_id)
         db_q3server = await Quake3Server.create(address=address, discord_guild=db_guild)
-        await UserQuake3ServerConfiguration.create(server=db_q3server, discord_user=(await DiscordUser.get_or_create(id=inter.user.id))[0], password=password)
+        await UserQuake3ServerConfiguration.create(
+            server=db_q3server,
+            discord_user=(await DiscordUser.get_or_create(id=inter.user.id))[0],
+            password=password,
+        )
 
         await inter.edit_original_response(content="Successfully added server!")
 
-    async def rcon_autocomplete_server(self, inter: discord.Interaction, current: str) -> list[slash_commands.Choice[Quake3Server]]:
+    async def rcon_autocomplete_server(
+        self, inter: discord.Interaction, current: str
+    ) -> list[slash_commands.Choice[Quake3Server]]:
         servers = await Quake3Server.filter(discord_guild__id=inter.guild_id)
 
         if not current:  # show em all
@@ -72,7 +81,11 @@ class Quake3ServerCommands(commands.Cog):
         search_bank = make_search_bank(search_bank_items)
         results = {r.item for r in query_search_bank(search_bank, current) if r.similarity > 0.15}
 
-        return [slash_commands.Choice(name=q3s.address, value=q3s.id) for q3s in servers if q3s.address.lower() in results]
+        return [
+            slash_commands.Choice(name=q3s.address, value=q3s.id)
+            for q3s in servers
+            if q3s.address.lower() in results
+        ]
 
     @slash_commands.command(name="rcon", description="Send commands to your Quake III Server")
     @slash_commands.autocomplete(server=rcon_autocomplete_server)
