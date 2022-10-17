@@ -13,6 +13,9 @@ pydantic = "^1.10.2"
 python-dotenv = "^0.21.0"
 arrow = "^1.2.3"
 tortoise-orm = {extras = ["asyncpg"], version = "^0.19.2"}
+aio-q3-rcon = "^1.0.0"
+nltk = "^3.7"
+validators = "^0.20.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.10.0"
@@ -22,11 +25,11 @@ aerich = "^0.7.1"
 autoflake = "^1.7.6"
 
 [tool.poetry.scripts]
-bot = "bot.__main__:main"
+q3bot = "bot.__main__:main"
 
 [tool.aerich]
 tortoise_orm = "bot.config.TORTOISE_ORM"
-location = "./migrations"
+location = "./bot/migrations"
 src_folder = "./."
 [build-system]
 requires = ["poetry-core>=1.0.0"]
