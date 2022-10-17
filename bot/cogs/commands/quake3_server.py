@@ -65,8 +65,6 @@ class Quake3ServerCommands(commands.Cog):
     async def rcon_autocomplete_server(self, inter: discord.Interaction, current: str) -> list[slash_commands.Choice[Quake3Server]]:
         servers = await Quake3Server.filter(discord_guild__id=inter.guild_id)
 
-        inter.extras["servers"] = {s.id: s for s in servers}
-
         if not current:  # show em all
             return [slash_commands.Choice(name=q3s.address, value=q3s.id) for q3s in servers][:10]
 
@@ -81,7 +79,20 @@ class Quake3ServerCommands(commands.Cog):
     async def rcon(self, inter: discord.Interaction, server: int):
         await inter.response.defer()
 
-        server: Quake3Server = inter.extras["servers"][server]
+        server = await Quake3Server.get(id=server)
+        configuration: UserQuake3ServerConfiguration = await server.configurations.filter(discord_user__id=inter.user.id).first()
+
+        print(configuration)
+
+        try:
+            async with aioq3rcon.Client(
+                host=server.host,
+                port=server.port,
+                password=None,
+            ) as client:
+                pass
+        except:
+            pass
 
         await inter.edit_original_response(content=server.address)
 
