@@ -1,7 +1,7 @@
 from tortoise import fields
 
-from .quake3_server import Quake3Server
 from .base_discord_model import BaseDiscordModel
+from .quake3_server import Quake3Server
 
 
 class DiscordGuild(BaseDiscordModel):

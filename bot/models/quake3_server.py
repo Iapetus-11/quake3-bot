@@ -1,7 +1,7 @@
 from tortoise import fields
 
-from .user_server_configuration import UserQuake3ServerConfiguration
 from .base_model import BaseModel
+from .user_server_configuration import UserQuake3ServerConfiguration
 
 
 class Quake3Server(BaseModel):
@@ -15,7 +15,7 @@ class Quake3Server(BaseModel):
 
     @property
     def host(self) -> str:
-        return self.address.split(':')[0]
+        return self.address.split(":")[0]
 
     @property
     def port(self) -> int:
