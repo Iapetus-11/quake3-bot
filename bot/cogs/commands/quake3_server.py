@@ -98,11 +98,15 @@ class Quake3ServerCommands(commands.Cog):
 
         db_user, _ = await DiscordUser.get_or_create(id=inter.user.id)
         server = await Quake3Server.get(id=server)
-        q3_server_config: UserQuake3ServerConfiguration = await server.configurations.filter(discord_user=db_user).first()
+        q3_server_config: UserQuake3ServerConfiguration = await server.configurations.filter(
+            discord_user=db_user
+        ).first()
 
         if q3_server_config is None:
             await inter.response.send_modal(password_modal := Quake3ServerPasswordSetModal())
-            await UserQuake3ServerConfiguration.create(server=server, discord_user=db_user, password=password_modal.password.value)
+            await UserQuake3ServerConfiguration.create(
+                server=server, discord_user=db_user, password=password_modal.password.value
+            )
 
         try:
             async with aioq3rcon.Client(
@@ -111,7 +115,9 @@ class Quake3ServerCommands(commands.Cog):
                 password=q3_server_config.password,
             ) as client:
                 response = await client.send_command(command, interpret=True)
-                await inter.edit_original_response(content=f"```{command.replace('`', '')}``````\n\uFEFF{response.replace('`', '')}```")
+                await inter.edit_original_response(
+                    content=f"```{command.replace('`', '')}``````\n\uFEFF{response.replace('`', '')}```"
+                )
         except aioq3rcon.IncorrectPasswordError:
             await q3_server_config.delete()
             await inter.edit_original_response(content="Incorrect password set!")
