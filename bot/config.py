@@ -12,6 +12,8 @@ class BotConfig(BaseModel):
     DEVELOPMENT_GUILD_ID: int
     ERROR_CHANNEL_ID: int
 
+    RCON_PASSWORD_FERNET_KEY: str
+
 
 def load_config() -> BotConfig:
     return BotConfig(**dotenv.dotenv_values())

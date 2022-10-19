@@ -16,6 +16,7 @@ tortoise-orm = {extras = ["asyncpg"], version = "^0.19.2"}
 aio-q3-rcon = "^1.0.0"
 nltk = "^3.7"
 validators = "^0.20.0"
+cryptography = "^38.0.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.10.0"

@@ -1,9 +1,12 @@
+import asyncio
+
 import aiohttp
 import arrow
 import discord
 from discord.ext import commands
 
 from bot.config import CONFIG
+from bot.models import DiscordGuild, DiscordUser
 from bot.utils.setup import setup_logging
 
 
@@ -55,3 +58,7 @@ class Quake3Bot(commands.AutoShardedBot):
         embed.set_footer(text="Quake3 Bot", icon_url=self.user.avatar.url)
 
         return embed
+
+    @staticmethod
+    async def get_inter_db_data(inter: discord.Interaction) -> tuple[DiscordGuild, DiscordUser]:
+        return (await DiscordGuild.get_or_create(id=inter.guild_id))[0], (await DiscordUser.get_or_create(id=inter.user.id))[0]
