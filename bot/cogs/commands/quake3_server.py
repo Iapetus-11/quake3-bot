@@ -40,7 +40,7 @@ class Quake3ServerCommands(commands.Cog):
         commands: list[str],
         *,
         interpret: bool = True,
-    ) -> str:
+    ) -> list[str]:
         try:
             responses = []
 
@@ -50,7 +50,7 @@ class Quake3ServerCommands(commands.Cog):
                 for command in commands:
                     responses.append(await client.send_command(command, interpret=interpret))
 
-            return "\n".join(responses)
+            return responses
         except (ConnectionError, socket.gaierror):
             raise RCONError("Server could not be connected to.")
         except aioq3rcon.IncorrectPasswordError:
@@ -157,15 +157,17 @@ class Quake3ServerCommands(commands.Cog):
         )
 
         try:
-            response = await self.send_rcon_commands(
+            responses = await self.send_rcon_commands(
                 server, q3_server_config, [command], interpret=True
             )
         except RCONError as e:
             await inter.edit_original_response(content=e.args[0])
             return
 
+        response = truncate_string('\n'.join(responses).replace('`', ''), 2000 - 120)
+
         await inter.edit_original_response(
-            content=f"```{truncate_string(command.replace('`', ''), 20)}``````\n\uFEFF{truncate_string(response.replace('`', ''), 2000 - 120)}```",
+            content=f"```\uFEFF{truncate_string(command.replace('`', ''), 20)}``````\n\uFEFF{response}```",
         )
 
     @slash_commands.command(
@@ -182,6 +184,10 @@ class Quake3ServerCommands(commands.Cog):
         maps = [
             m for m in maps.replace(",", " ").replace("  ", " ").replace("  ", " ").split() if m
         ]
+
+        if len(maps) > 256:
+            await inter.edit_original_response(content="Map string too long.")
+            return
 
         if len(maps) < 1:
             await inter.edit_original_response(content="No valid maps specified.")
@@ -211,7 +217,35 @@ class Quake3ServerCommands(commands.Cog):
             await inter.edit_original_response(content=e.args[0])
             return
 
-        await inter.edit_original_response(content="Successfully updated map rotation!")
+        q3_commands = '\n'.join(q3_commands)
+
+        await inter.edit_original_response(content=f"Successfully updated map rotation!\n\nCommand Ran:\n```\n{q3_commands}\n```")
+
+    @slash_commands.command(
+        name="setmap", description="Set the current map on the specified server"
+    )
+    @slash_commands.autocomplete(server=autocomplete_server)
+    async def set_map(self, inter: discord.Interaction, server: int, map: str):
+        server = await Quake3Server.get(id=server)
+        inter, q3_server_config = await self.get_inter_user_q3_server_config(
+            inter, server, ephemeral=True
+        )
+
+        if not map.isalnum() or len(map) > 64:
+            await inter.edit_original_response(content="Invalid map specified.")
+            return
+
+        try:
+            responses = await self.send_rcon_commands(server, q3_server_config, [f'map {map}'])
+        except RCONError as e:
+            await inter.edit_original_response(content=e.args[0])
+            return
+
+        if responses[0].startswith("Can't find map"):
+            await inter.edit_original_response(content="Server could not find specified map.")
+            return
+
+        await inter.edit_original_response(content="Successfully set current map!")
 
     @slash_commands.command(
         name="serverping", description="Get the latency between the specified server and the bot"
