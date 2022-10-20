@@ -11,7 +11,7 @@ from discord.ext import commands
 from bot.models import Quake3Server
 from bot.models.user_server_configuration import UserQuake3ServerConfiguration
 from bot.quake3_bot import Quake3Bot
-from bot.utils.text import truncate_string
+from bot.utils.text import truncate_string, validate_q3_identifier
 from bot.utils.trigrams import make_search_bank, query_search_bank
 
 EXTRA_VALID_ADDRESSES = {
@@ -194,7 +194,7 @@ class Quake3ServerCommands(commands.Cog):
             return
 
         for q3_map in maps:
-            if not q3_map.isalnum():
+            if not validate_q3_identifier(q3_map):
                 await inter.edit_original_response(
                     content=f"Invalid map specified: `{discord.utils.escape_markdown(q3_map)}`"
                 )
@@ -231,7 +231,7 @@ class Quake3ServerCommands(commands.Cog):
             inter, server, ephemeral=True
         )
 
-        if not map.isalnum() or len(map) > 64:
+        if not validate_q3_identifier(map) or len(map) > 64:
             await inter.edit_original_response(content="Invalid map specified.")
             return
 
