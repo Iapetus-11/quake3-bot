@@ -1,4 +1,3 @@
-import re
 import socket
 import time
 
@@ -9,8 +8,7 @@ from aioq3rcon import RCONError
 from discord import app_commands as slash_commands
 from discord.ext import commands
 
-from bot.models import DiscordGuild, Quake3Server
-from bot.models.discord_user import DiscordUser
+from bot.models import Quake3Server
 from bot.models.user_server_configuration import UserQuake3ServerConfiguration
 from bot.quake3_bot import Quake3Bot
 from bot.utils.text import truncate_string
@@ -36,11 +34,19 @@ class Quake3ServerCommands(commands.Cog):
         self.bot = bot
 
     @staticmethod
-    async def send_rcon_commands(q3_server: Quake3Server, q3_server_config: UserQuake3ServerConfiguration, commands: list[str], *, interpret: bool = True) -> str:
+    async def send_rcon_commands(
+        q3_server: Quake3Server,
+        q3_server_config: UserQuake3ServerConfiguration,
+        commands: list[str],
+        *,
+        interpret: bool = True,
+    ) -> str:
         try:
             responses = []
 
-            async with aioq3rcon.Client(host=q3_server.host, port=q3_server.port, password=q3_server_config.password) as client:
+            async with aioq3rcon.Client(
+                host=q3_server.host, port=q3_server.port, password=q3_server_config.password
+            ) as client:
                 for command in commands:
                     responses.append(await client.send_command(command, interpret=interpret))
 
@@ -51,12 +57,18 @@ class Quake3ServerCommands(commands.Cog):
             await q3_server_config.delete()
             raise RCONError("Specified password is incorrect.")
 
-    async def get_inter_user_q3_server_config(self, inter: discord.Interaction, q3_server: Quake3Server, *, ephemeral: bool = False) -> tuple[discord.Interaction, UserQuake3ServerConfiguration]:
+    async def get_inter_user_q3_server_config(
+        self, inter: discord.Interaction, q3_server: Quake3Server, *, ephemeral: bool = False
+    ) -> tuple[discord.Interaction, UserQuake3ServerConfiguration]:
         _, db_user = await self.bot.get_inter_db_data(inter)
-        q3_server_config: UserQuake3ServerConfiguration = await q3_server.configurations.filter(discord_user=db_user).first()
+        q3_server_config: UserQuake3ServerConfiguration = await q3_server.configurations.filter(
+            discord_user=db_user
+        ).first()
 
         if q3_server_config is None:
-            await inter.response.send_modal(password_modal := Quake3ServerPasswordSetModal(timeout=60))
+            await inter.response.send_modal(
+                password_modal := Quake3ServerPasswordSetModal(timeout=60)
+            )
             await password_modal.wait()
             q3_server_config = await UserQuake3ServerConfiguration.create(
                 server=q3_server, discord_user=db_user, password=password_modal.password.value
@@ -140,10 +152,14 @@ class Quake3ServerCommands(commands.Cog):
     @slash_commands.autocomplete(server=autocomplete_server)  # type: ignore
     async def rcon(self, inter: discord.Interaction, server: int, *, command: str):
         server = await Quake3Server.get(id=server)
-        inter, q3_server_config = await self.get_inter_user_q3_server_config(inter, server, ephemeral=True)
+        inter, q3_server_config = await self.get_inter_user_q3_server_config(
+            inter, server, ephemeral=True
+        )
 
         try:
-            response = await self.send_rcon_commands(server, q3_server_config, [command], interpret=True)
+            response = await self.send_rcon_commands(
+                server, q3_server_config, [command], interpret=True
+            )
         except RCONError as e:
             await inter.edit_original_response(content=e.args[0])
             return
@@ -152,13 +168,20 @@ class Quake3ServerCommands(commands.Cog):
             content=f"```{truncate_string(command.replace('`', ''), 20)}``````\n\uFEFF{truncate_string(response.replace('`', ''), 2000 - 120)}```",
         )
 
-    @slash_commands.command(name="setmaprotation", description="Set the map rotation of the specified server, please enter map codes separated by spaces")
+    @slash_commands.command(
+        name="setmaprotation",
+        description="Set the map rotation of the specified server, please enter map codes separated by spaces",
+    )
     @slash_commands.autocomplete(server=autocomplete_server)  # type: ignore
     async def set_map_rotation(self, inter: discord.Interaction, server: int, *, maps: str):
         server = await Quake3Server.get(id=server)
-        inter, q3_server_config = await self.get_inter_user_q3_server_config(inter, server, ephemeral=True)
+        inter, q3_server_config = await self.get_inter_user_q3_server_config(
+            inter, server, ephemeral=True
+        )
 
-        maps = [m for m in maps.replace(',', ' ').replace('  ', ' ').replace('  ', ' ').split() if m]
+        maps = [
+            m for m in maps.replace(",", " ").replace("  ", " ").replace("  ", " ").split() if m
+        ]
 
         if len(maps) < 1:
             await inter.edit_original_response(content=f"No valid maps specified.`")
@@ -166,17 +189,21 @@ class Quake3ServerCommands(commands.Cog):
 
         for q3_map in maps:
             if not q3_map.isalnum():
-                await inter.edit_original_response(content=f"Invalid map specified: `{discord.utils.escape_markdown(q3_map)}`")
+                await inter.edit_original_response(
+                    content=f"Invalid map specified: `{discord.utils.escape_markdown(q3_map)}`"
+                )
                 return
 
-        mv_prefix = 'm'
+        mv_prefix = "m"
 
         q3_commands = list[str]()
 
         for i, q3_map in enumerate(maps, start=1):
-            q3_commands.append(f'set {mv_prefix}{i} "map {q3_map} ; set nextmap vstr {mv_prefix}{1 if i == len(maps) else i + 1}"')
+            q3_commands.append(
+                f'set {mv_prefix}{i} "map {q3_map} ; set nextmap vstr {mv_prefix}{1 if i == len(maps) else i + 1}"'
+            )
 
-        q3_commands.append(f'vstr {mv_prefix}1')
+        q3_commands.append(f"vstr {mv_prefix}1")
 
         try:
             await self.send_rcon_commands(server, q3_server_config, q3_commands, interpret=True)
@@ -186,16 +213,22 @@ class Quake3ServerCommands(commands.Cog):
 
         await inter.edit_original_response(content="Successfully updated map rotation!")
 
-    @slash_commands.command(name="serverping", description="Get the latency between the specified server and the bot")
+    @slash_commands.command(
+        name="serverping", description="Get the latency between the specified server and the bot"
+    )
     @slash_commands.autocomplete(server=autocomplete_server)  # type: ignore
     async def server_ping(self, inter: discord.Interaction, server: int):
         server = await Quake3Server.get(id=server)
-        inter, q3_server_config = await self.get_inter_user_q3_server_config(inter, server, ephemeral=True)
+        inter, q3_server_config = await self.get_inter_user_q3_server_config(
+            inter, server, ephemeral=True
+        )
 
         try:
-            async with aioq3rcon.Client(host=server.host, port=server.port, password=q3_server_config.password) as client:
+            async with aioq3rcon.Client(
+                host=server.host, port=server.port, password=q3_server_config.password
+            ) as client:
                 start = time.perf_counter_ns()
-                await client.send_command('heartbeat', interpret=False)
+                await client.send_command("heartbeat", interpret=False)
                 elapsed_ms = (time.perf_counter_ns() - start) * 1e-6
 
         except (ConnectionError, socket.gaierror):
@@ -206,7 +239,7 @@ class Quake3ServerCommands(commands.Cog):
             await inter.edit_original_response(content="Specified password is incorrect.")
             return
 
-        await inter.edit_original_response(content=f'Server responded in `{elapsed_ms:0.2f} ms`')
+        await inter.edit_original_response(content=f"Server responded in `{elapsed_ms:0.2f} ms`")
 
 
 async def setup(bot: Quake3Bot):

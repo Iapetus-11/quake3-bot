@@ -1,5 +1,3 @@
-import asyncio
-
 import aiohttp
 import arrow
 import discord
@@ -61,4 +59,6 @@ class Quake3Bot(commands.AutoShardedBot):
 
     @staticmethod
     async def get_inter_db_data(inter: discord.Interaction) -> tuple[DiscordGuild, DiscordUser]:
-        return (await DiscordGuild.get_or_create(id=inter.guild_id))[0], (await DiscordUser.get_or_create(id=inter.user.id))[0]
+        return (await DiscordGuild.get_or_create(id=inter.guild_id))[0], (
+            await DiscordUser.get_or_create(id=inter.user.id)
+        )[0]
