@@ -7,5 +7,5 @@ services:
     volumes:
       - type: bind
         source: ./.env
-        target: /villager-bot/.env
+        target: /quake3-bot/.env
     init: true
