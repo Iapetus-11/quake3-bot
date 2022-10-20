@@ -1,0 +1,11 @@
+version: "3.7"
+services:
+  bot:
+    build:
+      dockerfile: bot/Dockerfile
+      context: "."
+    volumes:
+      - type: bind
+        source: ./.env
+        target: /villager-bot/.env
+    init: true

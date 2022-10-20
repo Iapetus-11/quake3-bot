@@ -2,7 +2,7 @@ import ast
 import traceback
 
 
-def format_exception(e: Exception) -> str:
+def format_exception(e: BaseException) -> str:
     return "".join(traceback.format_exception(type(e), e, e.__traceback__, 4))
 
 

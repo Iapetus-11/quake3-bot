@@ -1,17 +1,12 @@
 from discord.ext import commands
 
+from bot.quake3_bot import Quake3Bot
 from bot.utils.code import execute_code, format_exception
-from bot.my_bot import MyBot
-from bot.cogs.core.database import Database
 
 
 class OwnerCommands(commands.Cog):
-    def __init__(self, bot: MyBot):
+    def __init__(self, bot: Quake3Bot):
         self.bot = bot
-
-    @property
-    def db(self) -> Database:
-        return self.bot.get_cog("Database")
 
     @commands.command(name="eval")
     @commands.is_owner()
@@ -22,9 +17,7 @@ class OwnerCommands(commands.Cog):
             stuff = stuff[2:]
 
         try:
-            result = await execute_code(
-                stuff, {"bot": self.bot, "db": self.db, "http": self.bot.aiohttp_client}
-            )
+            result = await execute_code(stuff, {"bot": self.bot, "http": self.bot.aiohttp_client})
 
             result_str = f"{result}".replace("```", "｀｀｀")
             await ctx.reply(f"```\n{result_str}```")
@@ -32,5 +25,5 @@ class OwnerCommands(commands.Cog):
             await ctx.reply(f"```py\n{format_exception(e)[:2000-9].replace('```', '｀｀｀')}```")
 
 
-async def setup(bot: MyBot):
+async def setup(bot: Quake3Bot):
     await bot.add_cog(OwnerCommands(bot))
