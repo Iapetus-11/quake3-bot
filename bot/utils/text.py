@@ -1,4 +1,4 @@
-VALID_Q3_IDENT_CHARS = "abcdefghijklnopqrstuvwxyz0123456789-_"
+VALID_Q3_IDENT_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789-_."
 
 def truncate_string(string: str, to: int, *, ellipses: str = "…") -> str:
     if len(string) > to:
@@ -8,4 +8,4 @@ def truncate_string(string: str, to: int, *, ellipses: str = "…") -> str:
 
 
 def validate_q3_identifier(string: str) -> bool:
-    return len(string.strip(VALID_Q3_IDENT_CHARS)) == 0
+    return len(string.lower().strip(VALID_Q3_IDENT_CHARS)) == 0
