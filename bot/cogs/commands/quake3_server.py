@@ -184,7 +184,7 @@ class Quake3ServerCommands(commands.Cog):
         ]
 
         if len(maps) < 1:
-            await inter.edit_original_response(content=f"No valid maps specified.`")
+            await inter.edit_original_response(content="No valid maps specified.")
             return
 
         for q3_map in maps:
