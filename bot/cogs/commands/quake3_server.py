@@ -164,7 +164,7 @@ class Quake3ServerCommands(commands.Cog):
             await inter.edit_original_response(content=e.args[0])
             return
 
-        response = truncate_string('\n'.join(responses).replace('`', ''), 2000 - 120)
+        response = truncate_string("\n".join(responses).replace("`", ""), 2000 - 120)
 
         await inter.edit_original_response(
             content=f"```\uFEFF{truncate_string(command.replace('`', ''), 20)}``````\n\uFEFF{response}```",
@@ -217,9 +217,11 @@ class Quake3ServerCommands(commands.Cog):
             await inter.edit_original_response(content=e.args[0])
             return
 
-        q3_commands = '\n'.join(q3_commands)
+        q3_commands = "\n".join(q3_commands)
 
-        await inter.edit_original_response(content=f"Successfully updated map rotation!\n\nCommand Ran:\n```\n{q3_commands}\n```")
+        await inter.edit_original_response(
+            content=f"Successfully updated map rotation!\n\nCommand Ran:\n```\n{q3_commands}\n```"
+        )
 
     @slash_commands.command(
         name="setmap", description="Set the current map on the specified server"
@@ -236,7 +238,7 @@ class Quake3ServerCommands(commands.Cog):
             return
 
         try:
-            responses = await self.send_rcon_commands(server, q3_server_config, [f'map {map}'])
+            responses = await self.send_rcon_commands(server, q3_server_config, [f"map {map}"])
         except RCONError as e:
             await inter.edit_original_response(content=e.args[0])
             return
