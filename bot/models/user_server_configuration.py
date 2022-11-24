@@ -35,4 +35,5 @@ class UserQuake3ServerConfiguration(BaseModel):
             .encrypt(kwargs.pop("password").encode())
             .decode()
         )
+
         return await super(UserQuake3ServerConfiguration, cls).create(using_db=using_db, **kwargs)

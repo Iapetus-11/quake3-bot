@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "quake3-bot"
 version = "0.0.0"
-description = "A Quake 3 Discord bot"
+description = "A Quake III Discord bot"
 authors = ["Milo Weinberg <iapetus011@gmail.com>"]
 license = "MIT"
 packages = [{ include = "bot" }]
