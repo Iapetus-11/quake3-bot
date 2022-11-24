@@ -25,6 +25,7 @@ class Quake3Bot(commands.AutoShardedBot):
         self.cog_list = [
             "core.events",
             "commands.owner",
+            "commands.help",
             "commands.quake3_server",
         ]
 
