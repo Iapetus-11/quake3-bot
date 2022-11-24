@@ -90,10 +90,9 @@ class Quake3ServerCommands(commands.Cog):
         return [
             slash_commands.Choice(name=m, value=m)
             for m in dict.fromkeys(
-                [
-                    current,
-                    *[r.item for r in query_search_bank(self.q3_maps_search_bank, current)]
-                ][:25]
+                [current, *[r.item for r in query_search_bank(self.q3_maps_search_bank, current)]][
+                    :25
+                ]
             ).keys()
         ]
 
