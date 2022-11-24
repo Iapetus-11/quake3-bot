@@ -269,7 +269,7 @@ class Quake3ServerCommands(commands.Cog):
             return
 
         await inter.edit_original_response(
-            content=f"Successfully updated map rotation!",
+            content="Successfully updated map rotation!",
             attachments=[
                 text_to_discord_file("\n".join(q3_commands), file_name="map_rotation_commands.txt")
             ],
