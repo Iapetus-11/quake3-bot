@@ -42,7 +42,7 @@ class Quake3ServerCommands(commands.Cog):
     async def send_rcon_commands(
         q3_server: Quake3Server,
         q3_server_config: UserQuake3ServerConfiguration,
-        commands: list[str],
+        rcon_commands: list[str],
         *,
         interpret: bool = True,
     ) -> list[str]:
@@ -52,7 +52,7 @@ class Quake3ServerCommands(commands.Cog):
             async with aioq3rcon.Client(
                 host=q3_server.host, port=q3_server.port, password=q3_server_config.password
             ) as client:
-                for command in commands:
+                for command in rcon_commands:
                     responses.append(await client.send_command(command, interpret=interpret))
 
             return responses
@@ -84,7 +84,6 @@ class Quake3ServerCommands(commands.Cog):
             if q3s.address.lower() in results
         ]
 
-    # noinspection PyMethodMayBeStatic
     async def autocomplete_map(
         self, inter: discord.Interaction, current: str
     ) -> list[slash_commands.Choice[str]]:
@@ -187,8 +186,35 @@ class Quake3ServerCommands(commands.Cog):
             return
 
         await inter.edit_original_response(
-            attachments=[text_to_discord_file("\n".join(responses), file_name=f"rcon_response.txt")]
+            attachments=[text_to_discord_file("\n".join(responses), file_name="rcon_response.txt")]
         )
+
+    @slash_commands.command(
+        name="setmap", description="Set the current map on the specified server"
+    )
+    @slash_commands.rename(server_id="server", q3_map="map")
+    @slash_commands.autocomplete(server_id=autocomplete_server_id, q3_map=autocomplete_map)  # type: ignore
+    async def set_map(self, inter: discord.Interaction, server_id: int, q3_map: str):
+        server = await Quake3Server.get(id=server_id)
+        inter, q3_server_config = await self.get_inter_user_q3_server_config(
+            inter, server, ephemeral=True
+        )
+
+        if not validate_q3_identifier(q3_map) or len(q3_map) > 64:
+            await inter.edit_original_response(content="Invalid map specified.")
+            return
+
+        try:
+            responses = await self.send_rcon_commands(server, q3_server_config, [f"map {q3_map}"])
+        except RCONError as e:
+            await inter.edit_original_response(content=e.args[0])
+            return
+
+        if responses[0].startswith("Can't find map"):
+            await inter.edit_original_response(content="Server could not find specified map.")
+            return
+
+        await inter.edit_original_response(content="Successfully set current map!")
 
     @slash_commands.command(
         name="setmaprotation",
@@ -248,33 +274,6 @@ class Quake3ServerCommands(commands.Cog):
                 text_to_discord_file("\n".join(q3_commands), file_name="map_rotation_commands.txt")
             ],
         )
-
-    @slash_commands.command(
-        name="setmap", description="Set the current map on the specified server"
-    )
-    @slash_commands.rename(server_id="server", q3_map="map")
-    @slash_commands.autocomplete(server_id=autocomplete_server_id, q3_map=autocomplete_map)  # type: ignore
-    async def set_map(self, inter: discord.Interaction, server_id: int, q3_map: str):
-        server = await Quake3Server.get(id=server_id)
-        inter, q3_server_config = await self.get_inter_user_q3_server_config(
-            inter, server, ephemeral=True
-        )
-
-        if not validate_q3_identifier(q3_map) or len(q3_map) > 64:
-            await inter.edit_original_response(content="Invalid map specified.")
-            return
-
-        try:
-            responses = await self.send_rcon_commands(server, q3_server_config, [f"map {q3_map}"])
-        except RCONError as e:
-            await inter.edit_original_response(content=e.args[0])
-            return
-
-        if responses[0].startswith("Can't find map"):
-            await inter.edit_original_response(content="Server could not find specified map.")
-            return
-
-        await inter.edit_original_response(content="Successfully set current map!")
 
     @slash_commands.command(
         name="serverping", description="Get the latency between the specified server and the bot"
