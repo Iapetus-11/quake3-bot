@@ -54,7 +54,7 @@ class Quake3Bot(commands.AutoShardedBot):
 
         embed.timestamp = arrow.utcnow().datetime
 
-        embed.set_footer(text="Quake3 Bot", icon_url=self.user.avatar.url)
+        embed.set_footer(text="Quake III Bot", icon_url=self.user.avatar.url)
 
         return embed
 
