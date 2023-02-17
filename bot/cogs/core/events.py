@@ -89,7 +89,7 @@ class Events(commands.Cog):
         if not isinstance(command, slash_commands.Command):
             return
 
-        discord_user, discord_guild = await self.bot.get_inter_db_data(inter)
+        discord_guild, discord_user = await self.bot.get_inter_db_data(inter)
 
         await CommandExecution.create(
             name=command.qualified_name,
