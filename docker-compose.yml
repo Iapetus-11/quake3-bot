@@ -8,4 +8,6 @@ services:
       - type: bind
         source: ./.env
         target: /quake3-bot/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     init: true
