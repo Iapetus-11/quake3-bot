@@ -190,7 +190,7 @@ class Quake3ServerCommands(commands.Cog):
         try:
             async with aioq3rcon.Client(host=address_without_port, port=port, password=password):
                 pass
-        except (ConnectionError, socket.gaierror):
+        except (ConnectionError, socket.gaierror, RCONError):
             await inter.edit_original_response(content=MSG_CONNECTION_ERROR)
             return
         except aioq3rcon.IncorrectPasswordError:
