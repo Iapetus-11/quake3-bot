@@ -1,4 +1,4 @@
-# Quake III Bot
+# Quake III Bot [\[Invite\]](https://discord.com/oauth2/authorize?client_id=1031255985915961406&scope=bot%29)
 
 *Quake III Bot allows you to manage your Quake III server directly from Discord using the power of RCON!*
 
