@@ -6,7 +6,6 @@ import discord
 import discord.app_commands as slash_commands
 from discord.ext import commands
 
-from bot.models import DiscordGuild, DiscordUser
 from bot.models.command_execution import CommandExecution
 from bot.quake3_bot import Quake3Bot
 from bot.utils.code import format_exception

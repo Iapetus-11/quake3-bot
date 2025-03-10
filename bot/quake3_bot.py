@@ -32,9 +32,8 @@ class Quake3Bot(commands.AutoShardedBot):
     async def get_error_channel(self) -> discord.TextChannel:
         await self.wait_until_ready()
 
-        return (
-            self.get_channel(CONFIG.ERROR_CHANNEL_ID)
-            or await self.fetch_channel(CONFIG.ERROR_CHANNEL_ID)
+        return self.get_channel(CONFIG.ERROR_CHANNEL_ID) or await self.fetch_channel(
+            CONFIG.ERROR_CHANNEL_ID
         )
 
     async def start(self, **kwargs) -> None:
